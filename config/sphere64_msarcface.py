@@ -16,7 +16,10 @@ log_base_dir = './log/'
 summary_interval = 100
 
 # Training dataset path
-train_dataset_path = "./data/ms_arcface"
+# train_dataset_path = "./data/ms_arcface"
+train_dataset_path = "./data/train_list_feature.txt"
+org_folder = 'ms1m_align_112'
+feature_folder = 'ms1m_align_112_feature'
 
 # Target image size for the input of network
 image_size = [112, 96]
@@ -80,7 +83,8 @@ learning_rate_schedule = {
 }
 
 # Restore model
-restore_model = './pretrained/sphere64_msarcface_am'
+# restore_model = './pretrained/sphere64_msarcface_am'
+restore_model = None
 
 # Keywords to filter restore variables, set None for all
 restore_scopes = ['SphereNet/conv', 'SphereNet/Bot']

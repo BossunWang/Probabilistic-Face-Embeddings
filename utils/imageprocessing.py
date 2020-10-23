@@ -220,29 +220,45 @@ register = {
 }
 
 def preprocess(images, config, is_training=False):
-    # Load images first if they are file paths
-    if type(images[0]) == str:
-        image_paths = images
-        images = []
-        assert (config.channels==1 or config.channels==3)
-        mode = 'RGB' if config.channels==3 else 'I'
-        for image_path in image_paths:
-            images.append(misc.imread(image_path, mode=mode))
-        images = np.stack(images, axis=0)
-    else:
-        assert type(images) == np.ndarray
-        assert images.ndim == 4
-
+    # # Load images first if they are file paths
+    # if type(images[0]) == str:
+    #     image_paths = images
+    #     images = []
+    #     assert (config.channels==1 or config.channels==3)
+    #     mode = 'RGB' if config.channels==3 else 'I'
+    #     for image_path in image_paths:
+    #         images.append(misc.imread(image_path, mode=mode))
+    #     images = np.stack(images, axis=0)
+    # else:
+    #     assert type(images) == np.ndarray
+    #     assert images.ndim == 4
+    #
     # Process images
-    proc_funcs = config.preprocess_train if is_training else config.preprocess_test
+    # proc_funcs = config.preprocess_train if is_training else config.preprocess_test
+    #
+    # for proc in proc_funcs:
+    #     proc_name, proc_args = proc[0], proc[1:]
+    #     assert proc_name in register, \
+    #         "Not a registered preprocessing function: {}".format(proc_name)
+    #     images = register[proc_name](images, *proc_args)
+    # if len(images.shape) == 3:
+    #     images = images[:,:,:,None]\
+    mus = []
+    conv_finals = []
 
-    for proc in proc_funcs:
-        proc_name, proc_args = proc[0], proc[1:]
-        assert proc_name in register, \
-            "Not a registered preprocessing function: {}".format(proc_name)
-        images = register[proc_name](images, *proc_args)
-    if len(images.shape) == 3:
-        images = images[:,:,:,None]
-    return images
+    for image_path in images:
+        new_file_path = image_path.replace(config.org_folder, config.feature_folder)
+        mu_file_path = new_file_path.replace('.jpg', '_mu.npy')
+        conv_final_file_path = new_file_path.replace('.jpg', '_conv_final.npy')
+        mu = np.load(mu_file_path)
+        conv_final = np.load(conv_final_file_path)
+
+        mus.append(mu)
+        conv_finals.append(conv_final)
+
+    mus = np.stack(mus, axis=0)
+    conv_finals = np.stack(conv_finals, axis=0)
+
+    return mus, conv_finals
         
 

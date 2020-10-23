@@ -72,7 +72,11 @@ def main(args):
             learning_rate = utils.get_updated_learning_rate(global_step, config)
             batch = trainset.pop_batch_queue()
 
-            wl, sm, global_step = network.train(batch['image'], batch['label'], learning_rate, config.keep_prob)
+            wl, sm, global_step = network.train(batch['mu'].reshape(config.batch_format['size'], -1)
+                                                , batch['conv_final'].reshape(config.batch_format['size'], -1)
+                                                , batch['label']
+                                                , learning_rate
+                                                , config.keep_prob)
 
             wl['lr'] = learning_rate
 

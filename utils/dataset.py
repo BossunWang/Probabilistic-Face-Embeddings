@@ -193,7 +193,8 @@ class Dataset(object):
             while True:
                 batch = self.get_batch(batch_format)
                 if proc_func is not None:
-                    batch['image'] = proc_func(batch['abspath'])
+                    # batch['image'] = proc_func(batch['abspath'])
+                    batch['mu'], batch['conv_final'] = proc_func(batch['abspath'])
                 self.batch_queue.put(batch)
 
         self.batch_workers = []

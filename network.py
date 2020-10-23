@@ -31,6 +31,7 @@ import numpy as np
 import tensorflow as tf
 from utils.tflib import mutual_likelihood_score_loss
 
+
 class Network:
     def __init__(self):
         self.graph = tf.Graph()
@@ -48,7 +49,6 @@ class Network:
                 # Set up placeholders
                 h, w = config.image_size
                 channels = config.channels
-                self.images = tf.placeholder(tf.float32, shape=[None, h, w, channels], name='images')
                 self.labels = tf.placeholder(tf.int32, shape=[None], name='labels')
 
                 self.learning_rate = tf.placeholder(tf.float32, name='learning_rate')
@@ -56,17 +56,20 @@ class Network:
                 self.phase_train = tf.placeholder(tf.bool, name='phase_train')
                 self.global_step = tf.Variable(0, trainable=False, dtype=tf.int32, name='global_step')
 
-                # Initialialize the backbone network
-                network = imp.load_source('embedding_network', config.embedding_network)
-                mu, conv_final = network.inference(self.images, config.embedding_size)
+                self.mu_feature = tf.placeholder(tf.float32
+                                    , [config.batch_format['size'], config.embedding_size]
+                                    , name='mu_feature')
+                self.conv_final_feature = tf.placeholder(tf.float32
+                                            , [config.batch_format['size'], config.embedding_size * 7 * 7]
+                                            , name='conv_final_feature')
 
                 # Initialize the uncertainty module
                 uncertainty_module = imp.load_source('uncertainty_module', config.uncertainty_module)
-                log_sigma_sq = uncertainty_module.inference(conv_final, config.embedding_size, 
+                log_sigma_sq = uncertainty_module.inference(self.conv_final_feature, config.embedding_size,
                                         phase_train = self.phase_train, weight_decay = config.weight_decay,
                                         scope='UncertaintyModule')
 
-                self.mu = tf.identity(mu, name='mu')
+                self.mu = tf.identity(self.mu_feature, name='mu')
                 self.sigma_sq = tf.identity(tf.exp(log_sigma_sq), name='sigma_sq')
 
                 # Build all losses
@@ -74,7 +77,7 @@ class Network:
                 self.watch_list = {}
 
                
-                MLS_loss = mutual_likelihood_score_loss(self.labels, mu, log_sigma_sq)
+                MLS_loss = mutual_likelihood_score_loss(self.labels, self.mu_feature, log_sigma_sq)
                 loss_list.append(MLS_loss)
                 self.watch_list['loss'] = MLS_loss
 
@@ -157,17 +160,17 @@ class Network:
             saver.restore(self.sess, ckpt_file)
 
             # Setup the I/O Tensors
-            self.images = self.graph.get_tensor_by_name('images:0')
+            self.mu_feature = self.graph.get_tensor_by_name('mu_feature:0')
+            self.conv_final_feature = self.graph.get_tensor_by_name('conv_final_feature:0')
             self.phase_train = self.graph.get_tensor_by_name('phase_train:0')
             self.keep_prob = self.graph.get_tensor_by_name('keep_prob:0')
             self.mu = self.graph.get_tensor_by_name('mu:0')
             self.sigma_sq = self.graph.get_tensor_by_name('sigma_sq:0')
             self.config = imp.load_source('network_config', os.path.join(model_path, 'config.py'))
 
-
-
-    def train(self, images_batch, labels_batch, learning_rate, keep_prob):
-        feed_dict = {   self.images: images_batch,
+    def train(self, mu_batch, conv_final_batch, labels_batch, learning_rate, keep_prob):
+        feed_dict = {   self.mu_feature: mu_batch,
+                        self.conv_final_feature: conv_final_batch,
                         self.labels: labels_batch,
                         self.learning_rate: learning_rate,
                         self.keep_prob: keep_prob,
@@ -201,4 +204,11 @@ class Network:
             print('')
         return mu, sigma_sq
 
+
+if __name__=="__main__":
+    config_file = 'config/sphere64_casia.py'
+    config = imp.load_source('config', config_file)
+
+    network = Network()
+    network.initialize(config, 1000)
 

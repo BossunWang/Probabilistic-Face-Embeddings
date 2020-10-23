@@ -4,7 +4,6 @@ from backbone.model_irse import IR_101, l2_norm
 from PIL import Image
 import numpy as np
 import os
-import tqdm
 
 
 def read_img(img, transform):
@@ -63,11 +62,11 @@ def feature_extract(data_list, org_folder, extract_folder):
     f.close()
 
 
-
-def checkfileCompleteness(data_list, org_folder, extract_folder):
+def writeExistFileToFeatureList(data_list, org_folder, extract_folder):
     f = open(data_list, 'r')
+    new_f = open(data_list.split('.txt')[0] + '_feature.txt', 'w')
 
-    print('check start')
+    print('writeExistFileToFeatureList')
 
     for file_path in f:
         file_path = file_path.replace('\n', '')
@@ -75,12 +74,8 @@ def checkfileCompleteness(data_list, org_folder, extract_folder):
         mu_file_path = new_file_path.replace('.jpg', '_mu.npy')
         conv_final_file_path = new_file_path.replace('.jpg', '_conv_final.npy')
 
-        if not os.path.isfile(mu_file_path):
-            print(mu_file_path)
-        if not os.path.isfile(conv_final_file_path):
-            print(conv_final_file_path)
-    
-    print('check done')
+        if os.path.isfile(mu_file_path) and os.path.isfile(conv_final_file_path):
+            new_f.write("%s\n" % file_path)
 
     f.close()
 
@@ -88,5 +83,5 @@ def checkfileCompleteness(data_list, org_folder, extract_folder):
 if __name__ == "__main__":
     org_folder = '../face_dataset/ms1m_align_112/'
     extract_folder = '../face_dataset/ms1m_align_112_feature/'
-    feature_extract('data/train_list.txt', org_folder, extract_folder)
-    checkfileCompleteness('data/train_list.txt', org_folder, extract_folder)
+    # feature_extract('data/train_list.txt', org_folder, extract_folder)
+    writeExistFileToFeatureList('data/train_list.txt', org_folder, extract_folder)

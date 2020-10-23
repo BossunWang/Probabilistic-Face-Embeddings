@@ -34,7 +34,7 @@ def feature_extract(data_list, org_folder, extract_folder):
         transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
     ])
 
-    for file_path in tqdm.tqdm(f):
+    for file_path in f:
         file_path = file_path.replace('\n', '')
         img_tensor = read_img(file_path, data_transform)
         img_tensor = img_tensor.unsqueeze(0).to(device)
@@ -54,8 +54,33 @@ def feature_extract(data_list, org_folder, extract_folder):
         new_file_path = file_path.replace(org_folder, extract_folder)
         mu_file_path = new_file_path.replace('.jpg', '_mu.npy')
         conv_final_file_path = new_file_path.replace('.jpg', '_conv_final.npy')
+        print(new_dir)
+        print(mu_file_path)
+        print(conv_final_file_path)
         np.save(mu_file_path, mu)
         np.save(conv_final_file_path, conv_final)
+
+    f.close()
+
+
+
+def checkfileCompleteness(data_list, org_folder, extract_folder):
+    f = open(data_list, 'r')
+
+    print('check start')
+
+    for file_path in f:
+        file_path = file_path.replace('\n', '')
+        new_file_path = file_path.replace(org_folder, extract_folder)
+        mu_file_path = new_file_path.replace('.jpg', '_mu.npy')
+        conv_final_file_path = new_file_path.replace('.jpg', '_conv_final.npy')
+
+        if not os.path.isfile(mu_file_path):
+            print(mu_file_path)
+        if not os.path.isfile(conv_final_file_path):
+            print(conv_final_file_path)
+    
+    print('check done')
 
     f.close()
 
@@ -64,3 +89,4 @@ if __name__ == "__main__":
     org_folder = '../face_dataset/ms1m_align_112/'
     extract_folder = '../face_dataset/ms1m_align_112_feature/'
     feature_extract('data/train_list.txt', org_folder, extract_folder)
+    checkfileCompleteness('data/train_list.txt', org_folder, extract_folder)

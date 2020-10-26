@@ -1,0 +1,1 @@
+python3 train.py config/sphere64_msarcface.py

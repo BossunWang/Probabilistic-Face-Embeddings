@@ -160,13 +160,13 @@ class Network:
             saver.restore(self.sess, ckpt_file)
 
             # Setup the I/O Tensors
-            self.mu_feature = self.graph.get_tensor_by_name('mu_feature:0')
-            self.conv_final_feature = self.graph.get_tensor_by_name('conv_final_feature:0')
-            self.phase_train = self.graph.get_tensor_by_name('phase_train:0')
-            self.keep_prob = self.graph.get_tensor_by_name('keep_prob:0')
-            self.mu = self.graph.get_tensor_by_name('mu:0')
-            self.sigma_sq = self.graph.get_tensor_by_name('sigma_sq:0')
-            self.config = imp.load_source('network_config', os.path.join(model_path, 'config.py'))
+            # self.mu_feature = self.graph.get_tensor_by_name('mu_feature:0')
+            # self.conv_final_feature = self.graph.get_tensor_by_name('conv_final_feature:0')
+            # self.phase_train = self.graph.get_tensor_by_name('phase_train:0')
+            # self.keep_prob = self.graph.get_tensor_by_name('keep_prob:0')
+            # self.mu = self.graph.get_tensor_by_name('mu:0')
+            # self.sigma_sq = self.graph.get_tensor_by_name('sigma_sq:0')
+            # self.config = imp.load_source('network_config', os.path.join(model_path, 'config.py'))
 
     def train(self, mu_batch, conv_final_batch, labels_batch, learning_rate, keep_prob):
         feed_dict = {   self.mu_feature: mu_batch,
@@ -181,27 +181,13 @@ class Network:
 
         return wl, sm, step
 
-    def extract_feature(self, images, batch_size, proc_func=None, verbose=False):
-        num_images = len(images)
-        num_features = self.mu.shape[1]
-        mu = np.ndarray((num_images, num_features), dtype=np.float32)
-        sigma_sq = np.ndarray((num_images, num_features), dtype=np.float32)
-        start_time = time.time()
-        for start_idx in range(0, num_images, batch_size):
-            if verbose:
-                elapsed_time = time.strftime('%H:%M:%S', time.gmtime(time.time()-start_time))
-                sys.stdout.write('# of images: %d Current image: %d Elapsed time: %s \t\r' 
-                    % (num_images, start_idx, elapsed_time))
-            end_idx = min(num_images, start_idx + batch_size)
-            images_batch = images[start_idx:end_idx]
-            if proc_func:
-                images_batch = proc_func(images_batch)
-            feed_dict = {self.images: images_batch,
-                        self.phase_train: False,
-                    self.keep_prob: 1.0}
-            mu[start_idx:end_idx], sigma_sq[start_idx:end_idx] = self.sess.run([self.mu, self.sigma_sq], feed_dict=feed_dict)
-        if verbose:
-            print('')
+    def extract_feature(self, mu_batch, conv_final_batch):
+        feed_dict = {self.mu_feature: mu_batch,
+                     self.conv_final_feature: conv_final_batch,
+                     self.phase_train: False,
+                     self.keep_prob: 1.0}
+
+        mu, sigma_sq = self.sess.run([self.mu, self.sigma_sq], feed_dict=feed_dict)
         return mu, sigma_sq
 
 

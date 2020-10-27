@@ -356,21 +356,27 @@ def read_img(img, transform):
     return image_tensor
 
 
-def generate_pair(path, img_path, file_name):
-    carry, pair = get_val_pair(path, file_name)
-    print(carry.shape)
-    print(pair.shape)
+def generate_pair(pair_list_path, file_dir):
+    pair_list = open(pair_list_path, "r")
+    pair_list = [line.rstrip() for line in pair_list]
 
-    fpdirFiles = os.listdir(img_path)  # list of directory files
-    fpdirFiles = natsort.natsorted(fpdirFiles)
-    fpdirFiles = [img_path + file_name for file_name in fpdirFiles]
-    print(len(fpdirFiles))
+    pair_flag_list = []
+    dirFiles_list = []
+    for pair_line in pair_list:
+        pair_line_list = pair_line.split(' ')
+        filepath1 = file_dir + pair_line_list[0]
+        filepath2 = file_dir + pair_line_list[1]
+        if os.path.isfile(filepath1) and os.path.isfile(filepath2):
+            dirFiles_list.append(filepath1)
+            dirFiles_list.append(filepath2)
+            is_same = True if pair_line_list[2] == '1' else False
+            pair_flag_list.append(is_same)
 
-    return pair, fpdirFiles
+    return pair_flag_list, dirFiles_list
 
 
-def eval(data_path, file_name, img_path):
-    pairs, dirFiles = generate_pair(data_path, img_path, file_name)
+def eval(data_path, file_name):
+    pairs, dirFiles = generate_pair(data_path, file_name)
 
     # Load model files and config file
     network = Network()
@@ -391,29 +397,9 @@ def eval(data_path, file_name, img_path):
 
 
 def main():
-    cfp_path = '../face_dataset/cfp_align_112_extract_images'
-    fpcfp_img_path = '../face_dataset/cfp_align_112_extract_images/cfp_fp/image/'
-    fpcfp_file_name = 'cfp_fp'
-    print(fpcfp_file_name)
-    eval(cfp_path, fpcfp_file_name, fpcfp_img_path)
-
-    cff_path = '../face_dataset/cfp_align_112_extract_images'
-    ffcfp_img_path = '../face_dataset/cfp_align_112_extract_images/cfp_ff/image/'
-    ffcfp_file_name = 'cfp_ff'
-    print(ffcfp_file_name)
-    eval(cff_path, ffcfp_file_name, ffcfp_img_path)
-
-    agedb_path = '../face_dataset/AgeDB'
-    agedb_img_path = '../face_dataset/AgeDB/agedb_30/image/'
-    agedb_file_name = 'agedb_30'
-    print(agedb_file_name)
-    eval(agedb_path, agedb_file_name, agedb_img_path)
-
-    lfw_path = '../face_dataset/lfw_align_112'
-    lfw_img_path = '../face_dataset/lfw_align_112/lfw/image/'
-    lfw_file_name = 'lfw'
-    print(lfw_file_name)
-    eval(lfw_path, lfw_file_name, lfw_img_path)
+    pair_list_path = '../face_dataset/masked_pairs.txt'
+    img_path = '../face_dataset/masked_whn_crop/'
+    eval(pair_list_path, img_path)
 
 
 if __name__ == "__main__":

@@ -1,1 +1,1 @@
-python3 train.py config/sphere64_msarcface.py
+CUDA_VISIBLE_DEVICES=5 python3 train.py config/sphere64_msarcface.py

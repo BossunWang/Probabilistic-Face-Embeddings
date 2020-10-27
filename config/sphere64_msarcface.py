@@ -16,7 +16,7 @@ log_base_dir = './log/'
 summary_interval = 100
 
 # Training dataset path
-train_dataset_path = "./data/ms_arcface"
+train_dataset_path = "./data/train_list.txt"
 
 # Target image size for the input of network
 image_size = [112, 96]

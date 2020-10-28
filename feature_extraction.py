@@ -13,7 +13,7 @@ def read_img(img, transform):
     return image_tensor
 
 
-def feature_extract(data_list, org_folder, extract_folder):
+def feature_extract(data_list, extract_folder):
     f = open(data_list, 'r')
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -47,11 +47,15 @@ def feature_extract(data_list, org_folder, extract_folder):
         conv_final = conv_final.cpu().data.numpy()
 
         sub_dir = file_path.split('/')[-2]
+        org_folder = file_path.split('/')[2]
+        extract_dir = extract_folder.split('/')[2]
+        # print('org_folder:', org_folder)
+        # print('extract_dir:', extract_dir)
 
         new_dir = extract_folder + sub_dir
         if not os.path.isdir(new_dir):
             os.mkdir(new_dir)
-        new_file_path = file_path.replace(org_folder, extract_folder)
+        new_file_path = file_path.replace(org_folder, extract_dir)
         mu_file_path = new_file_path.replace('.jpg', '_mu.npy')
         conv_final_file_path = new_file_path.replace('.jpg', '_conv_final.npy')
         # print(new_dir)
@@ -63,26 +67,7 @@ def feature_extract(data_list, org_folder, extract_folder):
     f.close()
 
 
-def writeExistFileToFeatureList(data_list, org_folder, extract_folder):
-    f = open(data_list, 'r')
-    new_f = open(data_list.split('.txt')[0] + '_feature.txt', 'w')
-
-    print('writeExistFileToFeatureList')
-
-    for file_path in f:
-        file_path = file_path.replace('\n', '')
-        new_file_path = file_path.replace(org_folder, extract_folder)
-        mu_file_path = new_file_path.replace('.jpg', '_mu.npy')
-        conv_final_file_path = new_file_path.replace('.jpg', '_conv_final.npy')
-
-        if os.path.isfile(mu_file_path) and os.path.isfile(conv_final_file_path):
-            new_f.write("%s\n" % file_path)
-
-    f.close()
-
-
 if __name__ == "__main__":
-    org_folder = '../face_dataset/ms1m_align_112/'
-    extract_folder = '../face_dataset/ms1m_align_112_feature/'
-    feature_extract('data/train_list.txt', org_folder, extract_folder)
-    writeExistFileToFeatureList('data/train_list.txt', org_folder, extract_folder)
+    # extract_folder = '../face_dataset/ms1m_align_112_feature/'    
+    extract_folder = '../face_dataset/CASIA_Umdfaces_feature/'
+    feature_extract('data/train_list.txt', extract_folder)

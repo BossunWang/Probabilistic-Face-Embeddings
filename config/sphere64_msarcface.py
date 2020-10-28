@@ -17,8 +17,7 @@ summary_interval = 100
 
 # Training dataset path
 # train_dataset_path = "./data/ms_arcface"
-train_dataset_path = "./data/train_list_feature.txt"
-org_folder = 'ms1m_align_112'
+train_dataset_path = "./data/train_list.txt"
 feature_folder = 'ms1m_align_112_feature'
 
 # Target image size for the input of network

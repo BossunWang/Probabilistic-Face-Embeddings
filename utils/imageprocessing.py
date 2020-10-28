@@ -247,7 +247,7 @@ def preprocess(images, config, is_training=False):
     conv_finals = []
 
     for image_path in images:
-        new_file_path = image_path.replace(config.org_folder, config.feature_folder)
+        new_file_path = image_path.replace(image_path.split('/')[4], config.feature_folder)
         mu_file_path = new_file_path.replace('.jpg', '_mu.npy')
         conv_final_file_path = new_file_path.replace('.jpg', '_conv_final.npy')
         mu = np.load(mu_file_path)

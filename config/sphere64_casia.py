@@ -16,7 +16,9 @@ log_base_dir = './log/'
 summary_interval = 100
 
 # Training dataset path
-train_dataset_path = "./data/list_casia_mtcnncaffe_aligned_nooverlap.txt"
+# train_dataset_path = "./data/list_casia_mtcnncaffe_aligned_nooverlap.txt"
+train_dataset_path = "./data/train_list.txt"
+feature_folder = 'CASIA_Umdfaces_feature'
 
 # Target image size for the input of network
 image_size = [112, 96]
@@ -59,7 +61,7 @@ base_random_seed = 0
 
 # Number of samples per batch
 batch_format = {
-    'size': 256,
+    'size': 512,
     'num_classes': 64,
 }
 
@@ -67,7 +69,7 @@ batch_format = {
 epoch_size = 1000
 
 # Number of epochs
-num_epochs = 3
+num_epochs = 10
 
 # learning rate strategy
 learning_rate_strategy = 'step'
@@ -80,7 +82,8 @@ learning_rate_schedule = {
 }
 
 # Restore model
-restore_model = './pretrained/sphere64_casia_am'
+# restore_model = './pretrained/sphere64_msarcface_am'
+restore_model = None
 
 # Keywords to filter restore variables, set None for all
 restore_scopes = ['SphereNet/conv', 'SphereNet/Bot']

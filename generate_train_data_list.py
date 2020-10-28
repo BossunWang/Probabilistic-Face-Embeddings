@@ -16,7 +16,11 @@ def write_to_file(data_dir, f):
 print('generate dataset for training data')
 f = open('data/train_list.txt', 'w')
 
-data_dir = '../face_dataset/ms1m_align_112/'
+# data_dir = '../face_dataset/ms1m_align_112/'
+data_dir = '../face_dataset/CASIA-maxpy-clean_crop/'
+write_to_file(data_dir, f)
+
+data_dir = '../face_dataset/Umdfaces/'
 write_to_file(data_dir, f)
 
 f.close()

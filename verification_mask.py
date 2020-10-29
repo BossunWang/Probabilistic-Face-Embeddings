@@ -406,7 +406,7 @@ def eval(data_path, file_name):
     config.batch_format['size'] = 1
     network = Network()
     network.initialize(config)
-    network.load_model('log/sphere64_msarcface_am_PFE/20201024-090224')
+    network.load_model('log/sphere64_casia_am_PFE/20201028-015531')
 
     data_transform = transforms.Compose([
         transforms.Resize((INPUT_SIZE[0], INPUT_SIZE[1])),
